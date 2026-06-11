@@ -70,6 +70,7 @@ function serve (root, opts = {}) {
 }
 
 async function redirectToDirectorySlash (ctx, opts) {
+  if (ctx.method !== 'HEAD' && ctx.method !== 'GET') return false
   if (!opts.index || ctx.path[ctx.path.length - 1] === '/') return false
   if (opts.format !== undefined && opts.format !== 'redirect') return false
 
@@ -98,7 +99,7 @@ async function redirectToDirectorySlash (ctx, opts) {
 
   if (!stats.isFile()) return false
 
-  ctx.redirect(ctx.path + '/' + ctx.search)
+  ctx.redirect(ctx.path + '/' + getSearch(ctx))
   return true
 }
 
@@ -122,6 +123,13 @@ function isHidden (root, pathname) {
 
 function isNotFound (err) {
   return err.code === 'ENOENT' || err.code === 'ENOTDIR' || err.code === 'ENAMETOOLONG'
+}
+
+function getSearch (ctx) {
+  const search = ctx.search
+
+  if (!search) return ''
+  return search[0] === '?' ? search : `?${search}`
 }
 
 function resolveFromRoot (root, pathname) {

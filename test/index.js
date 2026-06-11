@@ -126,6 +126,17 @@ describe('serve(root)', function () {
           app.use(serve('test/fixtures'))
 
           request(app.listen())
+            .get('/world')
+            .expect(302)
+            .expect('Location', '/world/', done)
+        })
+
+        it('should preserve the query string when redirecting a directory request', function (done) {
+          const app = new Koa()
+
+          app.use(serve('test/fixtures'))
+
+          request(app.listen())
             .get('/world?foo=bar')
             .expect(302)
             .expect('Location', '/world/?foo=bar', done)
@@ -377,6 +388,21 @@ describe('serve(root)', function () {
 
         request(app.listen())
           .post('/hello.txt')
+          .expect(404, done)
+      })
+
+      it('should not redirect directory requests', function (done) {
+        const app = new Koa()
+
+        app.use(serve('test/fixtures', {
+          defer: true
+        }))
+
+        request(app.listen())
+          .post('/world')
+          .expect((res) => {
+            assert.equal(res.headers.location, undefined)
+          })
           .expect(404, done)
       })
     })
