@@ -274,6 +274,21 @@ describe('serve(root)', function () {
             .expect(302)
             .expect('Location', '/world/?foo=bar', done)
         })
+
+        it('should not redirect when the directory has no index file', function (done) {
+          const app = new Koa()
+
+          app.use(serve('test/fixtures', {
+            defer: true
+          }))
+
+          request(app.listen())
+            .get('/empty?foo=bar')
+            .expect((res) => {
+              assert.equal(res.headers.location, undefined)
+            })
+            .expect(404, done)
+        })
       })
     })
 

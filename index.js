@@ -133,7 +133,7 @@ function getSearch (ctx) {
 }
 
 function resolveFromRoot (root, pathname) {
-  const filename = pathname.substr(path.parse(pathname).root.length)
+  const filename = pathname.slice(path.parse(pathname).root.length)
   const resolved = path.resolve(root, filename)
   const relative = path.relative(root, resolved)
 
