@@ -1,4 +1,3 @@
-
 'use strict'
 
 const request = require('supertest')
@@ -120,6 +119,27 @@ describe('serve(root)', function () {
             .expect('Content-Type', 'text/html; charset=utf-8')
             .expect('html index', done)
         })
+
+        it('should redirect directory requests missing a trailing slash', function (done) {
+          const app = new Koa()
+
+          app.use(serve('test/fixtures'))
+
+          request(app.listen())
+            .get('/world?foo=bar')
+            .expect(302)
+            .expect('Location', '/world/?foo=bar', done)
+        })
+
+        it('should not redirect when the directory has no index file', function (done) {
+          const app = new Koa()
+
+          app.use(serve('test/fixtures'))
+
+          request(app.listen())
+            .get('/empty')
+            .expect(404, done)
+        })
       })
 
       describe('when disabled', function () {
@@ -229,6 +249,19 @@ describe('serve(root)', function () {
             .expect(200)
             .expect('Content-Type', 'text/html; charset=utf-8')
             .expect('html index', done)
+        })
+
+        it('should redirect directory requests missing a trailing slash', function (done) {
+          const app = new Koa()
+
+          app.use(serve('test/fixtures', {
+            defer: true
+          }))
+
+          request(app.listen())
+            .get('/world?foo=bar')
+            .expect(302)
+            .expect('Location', '/world/?foo=bar', done)
         })
       })
     })
